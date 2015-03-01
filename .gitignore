@@ -1,0 +1,8 @@
+*.o
+*.bs
+blib/
+*.sw*
+MYMETA*
+pm_to_blib
+Algo.c
+Makefile
