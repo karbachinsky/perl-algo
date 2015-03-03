@@ -1,4 +1,9 @@
-This is Perl module Algo.
+# Algo
+This is Perl module Algo. Provides next functions:
+
+* k order statistic
+
+* mediana
 
 INSTALLATION
 
