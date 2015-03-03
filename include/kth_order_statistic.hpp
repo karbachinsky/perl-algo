@@ -31,10 +31,10 @@ const InputIterator KthOrderStatistic(const InputIterator begin, const InputIter
     DEBUG("n", n)
 
     if (n == 0)
-        throw std::invalid_argument("Empty array passed.");
+        throw std::invalid_argument("Empty array passed");
 
     if ( k > n)
-        throw std::invalid_argument("Bad argument k. Maybe it's out of range.");
+        throw std::invalid_argument("Bad argument k. Maybe it's out of range");
 
     auto it = begin,
          jt = end-1;

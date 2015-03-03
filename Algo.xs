@@ -2,12 +2,11 @@
 extern "C" {
 #endif
 
-#define PERL_NO_GET_CONTEXT
+//#define PERL_NO_GET_CONTEXT
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
 #include "ppport.h"
-#include <stdio.h>
 
 #ifdef __cplusplus
 } /* extern "C" */
@@ -22,6 +21,7 @@ extern "C" {
 
 #include "kth_order_statistic.hpp"
 #include "debug.hpp"
+
 
 /* copied from gfx modules */
 class PerlCompare {
@@ -56,6 +56,26 @@ class PerlCompare {
 };
 
 
+bool is_array_ref(const SV * const  a) {
+    return (SvROK(a) && SvTYPE(SvRV(a)) == SVt_PVAV);
+}
+
+
+void AV_to_vector(AV * array, std::vector<SV*> &elements) {
+    size_t len = av_len(array) + 1;
+    
+    DEBUG("array length", len);
+
+    elements.reserve(len);
+
+    SV *buf = &PL_sv_undef;
+    for (size_t i=0; i<len; ++i) {
+        buf = *(SV **)av_fetch(array, i, true);
+        elements.push_back(buf);
+    }
+}
+
+
 MODULE = Algo      PACKAGE = Algo
 
 SV *
@@ -63,24 +83,15 @@ kth_order_statistic(SV* compare, SV *array_ref, SV *k)
     PROTOTYPE: &$$
     CODE:
     {
-        if (!SvROK(array_ref) ||  SvTYPE(SvRV(array_ref)) != SVt_PVAV) {
-            warn("Not an array refference passed."); 
+        if (!is_array_ref(array_ref)) {
+            warn("Not an array refference passed"); 
             XSRETURN_UNDEF;
         }
 
         AV * array = (AV*)SvRV(array_ref);
-        ssize_t len = av_len(array) + 1;
-
-        DEBUG("array length", len);
-
         std::vector<SV*> elements;
-        elements.reserve(len);
 
-        SV *buf = &PL_sv_undef;
-        for (size_t i=0; i<len; ++i) {
-            buf = *(SV **)av_fetch(array, i, true);
-            elements.push_back(buf);
-        }
+        AV_to_vector(array, elements);
 
         DEBUG_ITERABLE("elements", elements.begin(), elements.end());
 
@@ -91,7 +102,6 @@ kth_order_statistic(SV* compare, SV *array_ref, SV *k)
                 (size_t)SvUV(k),
                 PerlCompare(compare)
             );
-            //size_t pos = std::distance(elements.begin(), it);
 
             DEBUG_ITERABLE("elements after", elements.begin(), elements.end());
             RETVAL = SvREFCNT_inc(*it);
@@ -103,4 +113,41 @@ kth_order_statistic(SV* compare, SV *array_ref, SV *k)
     }
 
     OUTPUT: RETVAL
-    
+   
+
+SV *
+mediana(SV* compare, SV *array_ref)
+    PROTOTYPE: &$
+    CODE:
+    {
+        if (!is_array_ref(array_ref)) {
+            warn("Not an array refference passed"); 
+            XSRETURN_UNDEF;
+        }
+
+        AV * array = (AV*)SvRV(array_ref);
+        std::vector<SV*> elements;
+
+        AV_to_vector(array, elements);
+
+        size_t k = elements.size() / 2;
+
+        try {
+            auto it = algo::KthOrderStatistic<std::vector<SV*>::iterator, PerlCompare>(
+                elements.begin(), 
+                elements.end(), 
+                k,
+                PerlCompare(compare)
+            );
+
+            DEBUG_ITERABLE("elements after", elements.begin(), elements.end());
+            RETVAL = SvREFCNT_inc(*it);
+        }
+        catch (std::exception &e) {
+            warn(e.what()); 
+            XSRETURN_UNDEF;
+        }
+    }
+
+    OUTPUT: RETVAL
+   

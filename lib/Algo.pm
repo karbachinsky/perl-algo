@@ -7,7 +7,7 @@ use XSLoader;
 use Exporter 5.57 'import';
 
 our $VERSION     = '0.01';
-our %EXPORT_TAGS = ( 'all' => [qw<kth_order_statistic>] );
+our %EXPORT_TAGS = ( 'all' => [qw<kth_order_statistic mediana>] );
 our @EXPORT_OK   = ( @{ $EXPORT_TAGS{'all'} } );
 
 XSLoader::load('Algo', $VERSION);
@@ -30,14 +30,29 @@ Version 0.01
 
 This module provides several math and statistical algorithms implementations in C++ XS for perl.
 
-=head2 Functions
+=head1 Functions
 
-=head3 C<< kth_order_statistic(compare_sub, array_ref, k) >>
+=head2 C<< kth_order_statistic(compare_sub, array_ref, k) >>
 
-This functions allows to find k-th order statistic for certain array of elements.
-Note that this function changes imput array (like std::nth_element im STL C++) according to the next rule:
-element at k-th position will become k-tg order atatistic. Each element from the left of k will be less then k-th
-and each from the right will be greater. This algorithm work with linear complexity O(n).
+This function allows to find k-th order statistic for certain array of elements. 
+Note that this function changes input array (like std::nth_element im STL C++) according to the next rule:
+element at k-th position will become k-th order atatistic. Each element from the left of k will be less then k-th
+and each from the right will be greater. This algorithm works with linear complexity O(n).
+
+    $statistic = kth_order_statistic(\&compare, $array_ref, $k);
+
+For example C<compare> function could be simple comparison for integers:
+
+    sub compare {
+        $_[0] <=> $_[1]
+    }
+
+=head2 C<< mediana(compare_sub, array_ref) >>
+
+This function allows to find mediana for certain array of elements. This method is the same as n/2 kth order statistc.
+Like C<kth_order_statistic> this functions changes input array according to the same rule.
+
+    $mediana = mediana(\&compare, $array_ref);
 
 =head1 BUGS
 
