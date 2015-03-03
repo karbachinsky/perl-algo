@@ -2,22 +2,23 @@
 extern "C" {
 #endif
 
-//#define PERL_NO_GET_CONTEXT
+#define PERL_NO_GET_CONTEXT
 #include "EXTERN.h"
 #include "perl.h"
+#define NO_XSLOCKS 
 #include "XSUB.h"
-#include "ppport.h"
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+#include "ppport.h"
 
 #define NDEBUG
 
 #include <vector>
 #include <cstddef>
 #include <stdexcept>
-//#include <iterator>
 
 #include "kth_order_statistic.hpp"
 #include "debug.hpp"
@@ -62,6 +63,7 @@ bool is_array_ref(const SV * const  a) {
 
 
 void AV_to_vector(AV * array, std::vector<SV*> &elements) {
+    dTHX; 
     size_t len = av_len(array) + 1;
     
     DEBUG("array length", len);
