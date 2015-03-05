@@ -1,5 +1,5 @@
 # Algo
-This is Perl module Algo. Provides next functions:
+This is Perl module Algorithm::Statistic. Provides the following functions:
 
 * k order statistic
 

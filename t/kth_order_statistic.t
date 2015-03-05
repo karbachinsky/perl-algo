@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More;
 
-use_ok( 'Algo', ':all' );
+use_ok( 'Algorithm::Statistic', ':all' );
 
 # Ordinary check
 {

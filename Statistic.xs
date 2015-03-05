@@ -78,7 +78,7 @@ void AV_to_vector(AV * array, std::vector<SV*> &elements) {
 }
 
 
-MODULE = Algo      PACKAGE = Algo
+MODULE = Algorithm::Statistic      PACKAGE = Algorithm::Statistic
 
 SV *
 kth_order_statistic(SV* compare, SV *array_ref, SV *k)

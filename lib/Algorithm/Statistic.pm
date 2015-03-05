@@ -1,4 +1,4 @@
-package Algo;
+package Algorithm::Statistic;
 
 use strict;
 use warnings;
@@ -10,13 +10,13 @@ our $VERSION     = '0.01';
 our %EXPORT_TAGS = ( 'all' => [qw<kth_order_statistic mediana>] );
 our @EXPORT_OK   = ( @{ $EXPORT_TAGS{'all'} } );
 
-XSLoader::load('Algo', $VERSION);
+XSLoader::load('Algorithm::Statistic', $VERSION);
 
 1;
 
 =head1 NAME
 
-Algo - algorithms library
+Algorithm::Statistic - different statistical algorithms library
 
 =head1 VERSION
 
@@ -24,7 +24,7 @@ Version 0.01
 
 =head1 SYNOPSIS
 
-    use Algo;
+    use Algorithm::Statistic qw/:all/;
 
 =head1 DESCRIPTION
 
