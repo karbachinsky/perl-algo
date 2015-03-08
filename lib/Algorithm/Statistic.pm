@@ -60,7 +60,7 @@ If you find a bug please contact me via email.
 
 =head1 AUTHOR
 
-Igor KarbachinskyE <igorkarbachinsky@mail.ru>
+Igor Karbachinsky <igorkarbachinsky@mail.ru>
 
 =head1 LICENSE AND COPYRIGHT
 
