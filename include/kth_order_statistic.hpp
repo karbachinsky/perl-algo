@@ -56,11 +56,11 @@ const InputIterator KthOrderStatistic(const InputIterator begin, const InputIter
             DEBUG("Swap it", *it);
             DEBUG("Swap jt", *jt);
 
-            iter_swap(it, jt);
+            std::iter_swap(it, jt);
 
             DEBUG_ITERABLE("Array after rearranging", begin, end);
 
-            if (compare(*it, *jt) == 0 && jt - it == 1)
+            if (compare(*it, *jt) == 0 && jt - it <= 2)
                 break;
         }
     } while (it < jt);

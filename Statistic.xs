@@ -15,21 +15,58 @@ extern "C" {
 #include "ppport.h"
 
 #define NDEBUG
-
-#include <vector>
-#include <cstddef>
-#include <stdexcept>
+#include <memory>
 
 #include "kth_order_statistic.hpp"
 #include "debug.hpp"
 
+/**
+ * Default comparator for numerics
+ */
+class PerlDefaultCompare {
+public:
+    virtual ~PerlDefaultCompare() {}
 
-/* copied from gfx modules */
-class PerlCompare {
-    SV* compare_;
+    virtual int operator()(SV* const x, SV* const y) const {
+        dTHX; 
+        SV *z = x;
+        if (SvTYPE(x) < SvTYPE(y)) {
+            // For comparison betwee flaot and int
+            z = y;
+        }
 
-    public:
-    PerlCompare(SV* compare) : compare_(compare) {}
+        int res = 0;
+
+        switch (SvTYPE(y)) {
+            case SVt_PVIV:
+            case SVt_IV: {
+                int a = SvIV(x),
+                    b = SvIV(y);
+
+                res = a < b ? -1 : a > b ? 1 : 0;
+                break;
+            }
+            case SVt_PVNV:
+            case SVt_NV:
+            default: {
+                float a = SvNV(x),
+                      b = SvNV(y);
+            
+                res = a < b ? -1 : a > b ? 1 : 0;
+                break;
+            }
+        }
+    
+        return res;
+    }
+};
+
+/**
+ * Extended comparator specified from perl
+ */
+class PerlCompare : public PerlDefaultCompare {
+public:
+    PerlCompare(SV* compare) : compare_(compare), PerlDefaultCompare() {}
 
     int operator()(SV* const x, SV* const y) const {
         dTHX;
@@ -54,6 +91,8 @@ class PerlCompare {
 
         return ret;
     }
+private:
+    SV* compare_;
 };
 
 
@@ -61,51 +100,50 @@ bool is_array_ref(const SV * const  a) {
     return (SvROK(a) && SvTYPE(SvRV(a)) == SVt_PVAV);
 }
 
-
-void AV_to_vector(AV * array, std::vector<SV*> &elements) {
-    dTHX; 
-    size_t len = av_len(array) + 1;
-    
-    DEBUG("array length", len);
-
-    elements.reserve(len);
-
-    SV *buf = &PL_sv_undef;
-    for (size_t i=0; i<len; ++i) {
-        buf = *(SV **)av_fetch(array, i, true);
-        elements.push_back(buf);
-    }
+bool is_sub_ref(const SV * const cv) {
+    return (SvROK(cv) && SvTYPE(SvRV(cv)) == SVt_PVCV);
 }
 
 
 MODULE = Algorithm::Statistic      PACKAGE = Algorithm::Statistic
 
+
+
 SV *
-kth_order_statistic(SV* compare, SV *array_ref, SV *k)
-    PROTOTYPE: &$$
+kth_order_statistic(SV *array_ref, SV *k, ...)
+    PROTOTYPE: $$;&
     CODE:
     {
         if (!is_array_ref(array_ref)) {
-            warn("Not an array refference passed"); 
+            warn("Not an array reference passed"); 
             XSRETURN_UNDEF;
+        }
+       
+        std::shared_ptr<PerlDefaultCompare> comparator(new PerlDefaultCompare());
+        // compare declared?
+        if (items > 2) {
+            if (is_sub_ref(ST(2))) {
+                SV* compare = ST(2);    
+                comparator = std::shared_ptr<PerlCompare>(new PerlCompare(compare));
+            }
+            else {
+                croak("Bad comparison sub passed"); 
+            }
         }
 
         AV * array = (AV*)SvRV(array_ref);
-        std::vector<SV*> elements;
-
-        AV_to_vector(array, elements);
-
-        DEBUG_ITERABLE("elements", elements.begin(), elements.end());
+        SV** rawarray = AvARRAY(array);
+        
+        size_t len = av_len(array) + 1;
 
         try {
-            auto it = algo::KthOrderStatistic<std::vector<SV*>::iterator, PerlCompare>(
-                elements.begin(), 
-                elements.end(), 
+            auto it = algo::KthOrderStatistic<SV**, PerlDefaultCompare>(
+                rawarray,
+                rawarray+len,
                 (size_t)SvUV(k),
-                PerlCompare(compare)
+                *comparator
             );
 
-            DEBUG_ITERABLE("elements after", elements.begin(), elements.end());
             RETVAL = SvREFCNT_inc(*it);
         }
         catch (std::exception &e) {
@@ -118,31 +156,41 @@ kth_order_statistic(SV* compare, SV *array_ref, SV *k)
    
 
 SV *
-mediana(SV* compare, SV *array_ref)
-    PROTOTYPE: &$
+median(SV *array_ref, ...)
+    PROTOTYPE: $;&
     CODE:
     {
         if (!is_array_ref(array_ref)) {
-            warn("Not an array refference passed"); 
+            warn("Not an array reference passed"); 
             XSRETURN_UNDEF;
         }
 
+        std::shared_ptr<PerlDefaultCompare> comparator(new PerlDefaultCompare());
+        // compare declared?
+        if (items > 1) {
+            if (is_sub_ref(ST(1))) {
+                SV* compare = ST(1);    
+                comparator = std::shared_ptr<PerlCompare>(new PerlCompare(compare));
+            }
+            else {
+                croak("Bad comparison sub passed"); 
+            }
+        }
+
         AV * array = (AV*)SvRV(array_ref);
-        std::vector<SV*> elements;
+        SV** rawarray = AvARRAY(array);
 
-        AV_to_vector(array, elements);
-
-        size_t k = elements.size() / 2;
+        size_t len = av_len(array) + 1;
+        size_t k = len/ 2;
 
         try {
-            auto it = algo::KthOrderStatistic<std::vector<SV*>::iterator, PerlCompare>(
-                elements.begin(), 
-                elements.end(), 
+            auto it = algo::KthOrderStatistic<SV**, PerlDefaultCompare>(
+                rawarray, 
+                rawarray + len, 
                 k,
-                PerlCompare(compare)
+                *comparator
             );
 
-            DEBUG_ITERABLE("elements after", elements.begin(), elements.end());
             RETVAL = SvREFCNT_inc(*it);
         }
         catch (std::exception &e) {

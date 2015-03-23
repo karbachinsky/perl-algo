@@ -1,7 +1,7 @@
 use 5.008005;
 use ExtUtils::MakeMaker;
 
-my $CXX = $ENV{CXX} || 'g++';
+my $CXX = $ENV{CXX} || 'c++';
 
 WriteMakefile(
     NAME           => 'Algorithm::Statistic',
@@ -13,7 +13,7 @@ WriteMakefile(
     DEFINE         => '',
     CC             => $CXX,
     LD             => $CXX,
-    INC            => '-I include/ -std=c++11',
+    INC            => '-I include/ -std=c++11 -O2',
     XSOPT          => '-C++',
     OBJECT         => '$(O_FILES)',
 );

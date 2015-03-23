@@ -1,26 +1,26 @@
-# Algo
+# Algorithm::Statistic
 This is Perl module Algorithm::Statistic. Provides the following functions:
 
 * k order statistic
 
-* mediana
+* median
 
 INSTALLATION
 
 Type the following command:
 
-    $ curl -L http://cpanmin.us | perl - Algo
+    $ curl -L http://cpanmin.us | perl - Algorithm::Statistic
 
 Or install cpanm and then run the following command to install
-Algo:
+Algorithm::Statistic:
 
-    $ cpanm Algo
+    $ cpanm Algorithm::Statistic
 
 If you get an archive of this distribution, unpack it and build it
 as per the usual:
 
-    $ tar xzf Algo-$version.tar.gz
-    $ cd Algo-$version
+    $ tar xzf Algorithm::Statistic-$version.tar.gz
+    $ cd Algorithm::Statistic-$version
     $ perl Makefile.PL
     $ make && make test
 
@@ -30,11 +30,14 @@ Then install it:
 
 DOCUMENTATION
 
-Algo documentation is available as in POD. So you can do:
+Algorithm::Statistic documentation is available as in POD. So you can do:
 
-    $ perldoc Algo
+    $ perldoc Algorithm::Statistic
 
 to read the documentation online with your favorite pager.
+
+TODO
+* Add MULTICALL for user specified compare CV's.
 
 LICENSE AND COPYRIGHT
 
