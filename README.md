@@ -36,9 +36,6 @@ Algorithm::Statistic documentation is available as in POD. So you can do:
 
 to read the documentation online with your favorite pager.
 
-TODO
-* Add MULTICALL for user specified compare CV's.
-
 LICENSE AND COPYRIGHT
 
 Copyright (c) 2015, Igor Karbachinsky. All rights reserved.
