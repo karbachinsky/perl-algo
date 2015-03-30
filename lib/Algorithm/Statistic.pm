@@ -6,7 +6,7 @@ use XSLoader;
 
 use Exporter 5.57 'import';
 
-our $VERSION     = '0.03';
+our $VERSION     = '0.04';
 our %EXPORT_TAGS = ( 'all' => [qw<kth_order_statistic median>] );
 our @EXPORT_OK   = ( @{ $EXPORT_TAGS{'all'} } );
 
@@ -20,7 +20,7 @@ Algorithm::Statistic - different statistical algorithms library
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =head1 SYNOPSIS
 
